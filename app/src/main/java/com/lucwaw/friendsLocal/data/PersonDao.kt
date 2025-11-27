@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface PersonDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPerson(spot: PersonEntity): Int
+    suspend fun insertPerson(spot: PersonEntity): Long
 
     @Delete
     suspend fun deletePerson(spot: PersonEntity)
@@ -20,5 +20,5 @@ interface PersonDao {
     fun getPersons(): Flow<List<PersonEntity>>
 
     @Query("SELECT * FROM personentity WHERE id = :id")
-    suspend fun getPersonById(id: Int): PersonEntity?
+    suspend fun getPersonById(id: Long): PersonEntity?
 }

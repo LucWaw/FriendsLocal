@@ -10,7 +10,7 @@ class PersonRepositoryImpl(
     private val dao: PersonDao
 ): PersonRepository {
 
-    override suspend fun insertPerson(person: Person): Int {
+    override suspend fun insertPerson(person: Person): Long {
         return dao.insertPerson(person.toPersonEntity())
     }
 
@@ -24,7 +24,7 @@ class PersonRepositoryImpl(
         }
     }
 
-    override suspend fun getPersonById(id: Int): Person? {
+    override suspend fun getPersonById(id: Long): Person? {
         return dao.getPersonById(id)?.toPerson()
     }
 }

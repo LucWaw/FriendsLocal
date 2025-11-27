@@ -5,11 +5,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface PersonRepository {
 
-    suspend fun insertPerson(person: Person): Int
+    suspend fun insertPerson(person: Person): Long
 
     suspend fun deletePerson(person: Person)
 
     fun getPersons(): Flow<List<Person>>
 
-    suspend fun getPersonById(id: Int): Person?
+    suspend fun getPersonById(id: Long): Person?
 }

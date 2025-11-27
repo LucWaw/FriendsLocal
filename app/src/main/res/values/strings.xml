@@ -1,7 +1,10 @@
 <resources>
-    <string name="app_name">FriendsLocal</string>
+    <string name="app_name" translatable="false">FriendsLocal</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="address">Address</string>
     <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="update_person">update the directory entry</string>
+    <string name="this_person_does_not_have_a_location_set">This person has no defined location.</string>
 </resources>

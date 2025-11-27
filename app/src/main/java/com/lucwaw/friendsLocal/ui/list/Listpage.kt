@@ -1,7 +1,5 @@
 package com.lucwaw.friendsLocal.ui.list
 
-import android.app.AlertDialog
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,9 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,18 +25,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.tasks.Task
+import com.lucwaw.friendsLocal.R
 import com.lucwaw.friendsLocal.domain.model.Person
 
 @Composable
 fun ListPage(
     onPersonLocation: (LatLng) -> Unit,
-    onUpdatePerson: (Int) -> Unit,
+    onUpdatePerson: (Long) -> Unit,
     onAdd: () -> Unit,
     viewModel: ListViewModel = hiltViewModel<ListViewModel>()
 ) {
@@ -44,7 +45,19 @@ fun ListPage(
 
     var showAlertNoLocationDialog by remember { mutableStateOf(false) }
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        floatingActionButton =
+            {
+                FloatingActionButton(
+                    onClick = { onAdd() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add Person"
+                    )
+                }
+            }
+    ) { paddingValues ->
 
         LazyColumn(Modifier.padding(paddingValues)) {
             items(
@@ -65,13 +78,13 @@ fun ListPage(
                     { onUpdatePerson(person.id) })
             }
         }
-        if (showAlertNoLocationDialog){
+        if (showAlertNoLocationDialog) {
             Dialog(
                 onDismissRequest = { showAlertNoLocationDialog = false }
             ) {
                 Card {// TODO voir SI necessaire
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "This person does not have a location set.")
+                        Text(text = stringResource(R.string.this_person_does_not_have_a_location_set))
                         TextButton(
                             onClick = { showAlertNoLocationDialog = false },
                             modifier = Modifier.align(Alignment.End)
@@ -101,7 +114,7 @@ fun PersonItem(person: Person, onPersonLocation: () -> Unit, goToUpdatePerson: (
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = person.address ?: "(${person.lat}, ${person.lng})",
+                text = "${person.address} ${person.lat}, ${person.lng}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

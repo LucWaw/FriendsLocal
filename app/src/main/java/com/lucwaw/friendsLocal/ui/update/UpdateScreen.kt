@@ -2,12 +2,16 @@ package com.lucwaw.friendsLocal.ui.update
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,7 +31,7 @@ import com.lucwaw.friendsLocal.domain.model.Person
 
 @Composable
 fun UpdateScreen(
-    idPerson: Int,
+    idPerson: Long,
     viewModel: UpdateViewModel = hiltViewModel<UpdateViewModel>(),
     back: () -> Unit
 ) {
@@ -36,7 +40,25 @@ fun UpdateScreen(
         viewModel.loadPerson(idPerson)
     }
 
-    Scaffold() { innerPadding ->
+    Scaffold(
+        topBar =
+            {
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        text = stringResource(R.string.update_person),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    IconButton(
+                        onClick = { viewModel.onEvent(UpdateEvent.OnDeleteClick);back() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete)
+                        )
+                    }
+                }
+            }
+    ) { innerPadding ->
         UpdateContent(Modifier.padding(innerPadding), person, viewModel::onEvent, back)
     }
 }
@@ -55,8 +77,13 @@ fun UpdateContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.border(3.dp, MaterialTheme.colorScheme.primary).padding(10.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier
+                .border(3.dp, MaterialTheme.colorScheme.primary)
+                .padding(10.dp)
+        ) {
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = person.firstName,

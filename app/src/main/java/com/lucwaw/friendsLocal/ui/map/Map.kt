@@ -4,12 +4,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.google.android.gms.maps.model.AdvancedMarkerOptions
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -26,13 +23,8 @@ private const val DETAIL_ZOOM = 15f
 @Composable
 fun MapScreen(
     startPosition: LatLng? = null, viewModel: MapsViewModel = hiltViewModel<MapsViewModel>(),
-    onUpdatePerson: (Int) -> Unit
+    onUpdatePerson: (Long) -> Unit, onAdd: (LatLng) -> Unit
 ) {
-    if (viewModel.lastUpdatedAt.value != null){
-        onUpdatePerson(viewModel.lastUpdatedAt.value!!)
-        viewModel.updateLastUpdatedAt(null)
-    }
-
     val initialCameraPosition = if (startPosition != null) {
         CameraPosition.fromLatLngZoom(startPosition, DETAIL_ZOOM)
     } else {
@@ -58,7 +50,7 @@ fun MapScreen(
             properties = state.properties,
             uiSettings = uiSettings,
             onMapLongClick = { latLng ->
-                viewModel.onEvent(MapEvent.OnMapLongClick(latLng, context))
+                onAdd(latLng)
             },
         ) {
             state.persons.forEachIndexed { index, person ->
