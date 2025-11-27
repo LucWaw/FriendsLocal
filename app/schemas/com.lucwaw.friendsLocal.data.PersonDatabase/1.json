@@ -2,24 +2,12 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2f7f513c8b7ab685d5d6c762ccac910e",
+    "identityHash": "aa710c407c6112cd9399ea4c7b5e3cfb",
     "entities": [
       {
         "tableName": "PersonEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lat` REAL NOT NULL, `lng` REAL NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `lat` REAL, `lng` REAL, `address` TEXT)",
         "fields": [
-          {
-            "fieldPath": "lat",
-            "columnName": "lat",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lng",
-            "columnName": "lng",
-            "affinity": "REAL",
-            "notNull": true
-          },
           {
             "fieldPath": "id",
             "columnName": "id",
@@ -37,6 +25,21 @@
             "columnName": "lastName",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "lat",
+            "columnName": "lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "lng",
+            "columnName": "lng",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -49,7 +52,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f7f513c8b7ab685d5d6c762ccac910e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aa710c407c6112cd9399ea4c7b5e3cfb')"
     ]
   }
 }

@@ -10,17 +10,21 @@ class PersonRepositoryImpl(
     private val dao: PersonDao
 ): PersonRepository {
 
-    override suspend fun insertPerson(spot: Person) {
-        dao.insertPerson(spot.toPersonEntity())
+    override suspend fun insertPerson(person: Person): Int {
+        return dao.insertPerson(person.toPersonEntity())
     }
 
-    override suspend fun deletePerson(spot: Person) {
-        dao.deletePerson(spot.toPersonEntity())
+    override suspend fun deletePerson(person: Person) {
+        dao.deletePerson(person.toPersonEntity())
     }
 
     override fun getPersons(): Flow<List<Person>> {
         return dao.getPersons().map { spots ->
             spots.map { it.toPerson() }
         }
+    }
+
+    override suspend fun getPersonById(id: Int): Person? {
+        return dao.getPersonById(id)?.toPerson()
     }
 }

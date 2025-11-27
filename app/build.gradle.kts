@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -21,15 +23,38 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
+
+        manifestPlaceholders["MAPS_API_KEY"] = ""
+
     }
 
     buildTypes {
+        val keystoreFile = project.rootProject.file("apikey.properties")
+        val properties = Properties()
+        try {
+            properties.load(keystoreFile.inputStream())
+        } catch (_: Exception) {
+            //Do nothing
+            println("Keystore properties file not found")
+        }
+
         release {
+            val mapsKey = properties.getProperty("MAPS_API_KEY") ?: ""
+
+            manifestPlaceholders["MAPS_API_KEY"] = mapsKey
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            val mapsKey = properties.getProperty("MAPS_API_KEY_DEBUG") ?: ""
+
+            manifestPlaceholders["MAPS_API_KEY"] = mapsKey
         }
     }
     compileOptions {

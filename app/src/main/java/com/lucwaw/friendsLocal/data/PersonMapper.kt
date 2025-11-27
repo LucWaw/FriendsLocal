@@ -8,7 +8,8 @@ fun PersonEntity.toPerson(): Person {
         lng = lng,
         id = id,
         firstName = firstName,
-        lastName = lastName
+        lastName = lastName,
+        address = address
     )
 }
 
@@ -18,6 +19,7 @@ fun Person.toPersonEntity(): PersonEntity {
         lng = lng,
         id = id,
         firstName = firstName,
-        lastName = lastName
+        lastName = lastName,
+        address = address
     )
 }

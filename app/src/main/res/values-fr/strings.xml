@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="first_name">Prenom</string>
+    <string name="last_name">Nom</string>
+    <string name="address">Adresse</string>
+    <string name="save">Sauvegarder</string>
+</resources>

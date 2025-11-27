@@ -1,8 +1,8 @@
 package com.lucwaw.friendsLocal.ui.map
 
+import android.content.Context
 import com.google.android.gms.maps.model.LatLng
-import com.lucwaw.friendsLocal.domain.model.Person
 
 sealed class MapEvent {
-    data class OnMapLongClick(val latLng: LatLng): MapEvent()
+    data class OnMapLongClick(val latLng: LatLng,val context: Context): MapEvent()
 }

@@ -5,10 +5,17 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class PersonEntity(
-    val lat: Double,
-    val lng: Double,
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Int = 0,
+
     val firstName: String,
-    val lastName: String
+
+    val lastName: String,
+
+    //nullable values for location details versatility
+    val lat: Double? = null,
+
+    val lng: Double? = null,
+
+    val address: String? = null,
 )

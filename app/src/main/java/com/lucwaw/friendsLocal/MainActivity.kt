@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,10 +17,10 @@ import androidx.navigation.navArgument
 import com.google.android.gms.maps.model.LatLng
 import com.lucwaw.friendsLocal.ui.AddPersonPage
 import com.lucwaw.friendsLocal.ui.BottomBar
-import com.lucwaw.friendsLocal.ui.DetailPage
 import com.lucwaw.friendsLocal.ui.list.ListPage
 import com.lucwaw.friendsLocal.ui.map.MapScreen
 import com.lucwaw.friendsLocal.ui.theme.FriendsLocalTheme
+import com.lucwaw.friendsLocal.ui.update.UpdateScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -49,43 +50,41 @@ class MainActivity : ComponentActivity() {
                             ListPage(
                                 onUpdatePerson = { id ->
                                     Log.d("DDDD", id.toString())
-                                    navController.navigate("Detail/$id")
+                                    navController.navigate("Update/$id")
                                 },
                                 onAdd = {
                                     navController.navigate("AddPerson")
                                 },
-                                onPersonLocation = { latlng : LatLng ->
+                                onPersonLocation = { latlng: LatLng ->
                                     navController.navigate("Map?lat=${latlng.latitude}&lng=${latlng.longitude}")
                                 }
                             )
                         }
 
                         composable(
-                            route = "Map?lat={lat}&lng={lng}", // Utilise des query parameters
+                            route = "Map?lat={lat}&lng={lng}",
                             arguments = listOf(
-                                // Arguments optionnels avec une valeur par défaut
                                 navArgument("lat") {
                                     type = NavType.FloatType
-                                    defaultValue = -1f // Une valeur invalide pour savoir si elle a été passée
+                                    defaultValue = -1f
                                 },
                                 navArgument("lng") {
                                     type = NavType.FloatType
-                                    defaultValue = -1f // Une valeur invalide pour savoir si elle a été passée
+                                    defaultValue = -1f
                                 }
                             )
                         ) { backStackEntry ->
-                            // On récupère les arguments
                             val lat = backStackEntry.arguments?.getFloat("lat")
                             val lng = backStackEntry.arguments?.getFloat("lng")
 
                             var startPosition: LatLng? = null
-                            // On vérifie si les arguments ont été passés et ne sont pas la valeur par défaut
                             if (lat != null && lng != null && lat != -1f && lng != -1f) {
                                 startPosition = LatLng(lat.toDouble(), lng.toDouble())
                             }
 
-                            // On appelle MapScreen avec la position (ou null si non fournie)
-                            MapScreen(startPosition = startPosition)
+                            MapScreen(startPosition = startPosition, onUpdatePerson = { id ->
+                                navController.navigate("Update/$id")
+                            })
                         }
 
                         composable("AddPerson") {
@@ -93,16 +92,24 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(
-                            route = "Detail/{personId}",
+                            route = "Update/{personId}",
                             arguments = listOf(
-                                navArgument("personId") { type = NavType.LongType }
+                                navArgument("personId") { type = NavType.IntType }
                             )
                         ) { backStackEntry ->
 
-                            val personId = backStackEntry.arguments?.getLong("personId")
+                            val personId = backStackEntry.arguments?.getInt("personId")
                             Log.d("AAAA", personId.toString())
-
-                            DetailPage(personId)
+                            if (personId != null) {
+                                UpdateScreen(personId, back = {
+                                    navController.popBackStack()
+                                })
+                            } else {
+                                Log.e("MainActivity", "personId is null in UpdateScreen navigation")
+                                Text(
+                                    text = "Error: Person ID is missing."
+                                )
+                            }
                         }
                     }
                 }

@@ -1,14 +1,15 @@
 package com.lucwaw.friendsLocal.ui.map
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.maps.LocationSource
+import com.google.android.gms.maps.model.AdvancedMarkerOptions
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -24,13 +25,17 @@ private const val DETAIL_ZOOM = 15f
 
 @Composable
 fun MapScreen(
-    startPosition: LatLng? = null, viewModel: MapsViewModel = hiltViewModel<MapsViewModel>()
+    startPosition: LatLng? = null, viewModel: MapsViewModel = hiltViewModel<MapsViewModel>(),
+    onUpdatePerson: (Int) -> Unit
 ) {
+    if (viewModel.lastUpdatedAt.value != null){
+        onUpdatePerson(viewModel.lastUpdatedAt.value!!)
+        viewModel.updateLastUpdatedAt(null)
+    }
 
     val initialCameraPosition = if (startPosition != null) {
         CameraPosition.fromLatLngZoom(startPosition, DETAIL_ZOOM)
     } else {
-        // Utiliser les nouvelles constantes pour la vue par défaut
         CameraPosition.fromLatLngZoom(WORLD_POSITION, WORLD_ZOOM)
     }
     val cameraPositionState = rememberCameraPositionState {
@@ -44,7 +49,8 @@ fun MapScreen(
         compassEnabled = true
     )
 
-    Scaffold() { paddingValues ->
+    Scaffold { paddingValues ->
+        val context = LocalContext.current
 
         GoogleMap(
             cameraPositionState = cameraPositionState,
@@ -52,24 +58,26 @@ fun MapScreen(
             properties = state.properties,
             uiSettings = uiSettings,
             onMapLongClick = { latLng ->
-                viewModel.onEvent(MapEvent.OnMapLongClick(latLng))
-            }
+                viewModel.onEvent(MapEvent.OnMapLongClick(latLng, context))
+            },
         ) {
             state.persons.forEachIndexed { index, person ->
+                if (person.lat == null || person.lng == null) {
+                    return@forEachIndexed
+                }
                 val markerState = rememberUpdatedMarkerState(
                     position = LatLng(person.lat, person.lng)
                 )
-
                 AdvancedMarker(
                     state = markerState,
                     title = "${person.firstName} ${person.lastName}",
-                    snippet = "(${person.lat}, ${person.lng})",
+                    snippet = person.address ?: "(${person.lat}, ${person.lng})",
                     onClick = {
                         it.showInfoWindow()
                         true
                     },
                     onInfoWindowClick = {
-                        //TODO go to detail
+                        onUpdatePerson(person.id)
                     },
                     icon = BitmapDescriptorFactory.defaultMarker(
                         BitmapDescriptorFactory.HUE_GREEN
