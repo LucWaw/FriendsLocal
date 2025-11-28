@@ -1,3 +1,8 @@
+-keep class com.google.android.libraries.places.internal.zzbsf { *; }
+-keep class com.google.android.libraries.places.internal.zzbxj { *; }
+-keep class com.google.android.libraries.places.internal.zzcet { *; }
+-keep class com.google.android.libraries.places.internal.zzbob { *; }
+-keep class com.google.android.libraries.places.internal.zzboc { *; }
 # Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
