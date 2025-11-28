@@ -5,6 +5,6 @@
     <string name="address">Address</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
-    <string name="update_person">update the directory entry</string>
-    <string name="this_person_does_not_have_a_location_set">This person has no defined location.</string>
+    <string name="update_person">Update the directory entry</string>
+    <string name="this_person_does_not_have_a_location_set">This person has no latitude and longitude location.</string>
 </resources>

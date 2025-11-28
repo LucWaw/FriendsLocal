@@ -23,36 +23,36 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-
-
-        manifestPlaceholders["MAPS_API_KEY"] = ""
-
     }
 
     buildTypes {
         val keystoreFile = project.rootProject.file("apikey.properties")
         val properties = Properties()
+
         try {
             properties.load(keystoreFile.inputStream())
         } catch (_: Exception) {
-            //Do nothing
             println("Keystore properties file not found")
         }
 
         release {
             val mapsKey = properties.getProperty("MAPS_API_KEY") ?: ""
 
+            buildConfigField("String", "MAPS_API_KEY", "\"$mapsKey\"")
+
             manifestPlaceholders["MAPS_API_KEY"] = mapsKey
 
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+
         debug {
             val mapsKey = properties.getProperty("MAPS_API_KEY_DEBUG") ?: ""
+
+            buildConfigField("String", "MAPS_API_KEY", "\"$mapsKey\"")
 
             manifestPlaceholders["MAPS_API_KEY"] = mapsKey
         }
@@ -71,6 +71,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -91,6 +92,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation(libs.places)
+
 
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)

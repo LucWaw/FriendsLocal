@@ -5,6 +5,6 @@
     <string name="address">Adresse</string>
     <string name="save">Sauvegarder</string>
     <string name="delete">Supprimer</string>
-    <string name="update_person">mettre à jour l\'entrée du répertoire</string>
-    <string name="this_person_does_not_have_a_location_set">Cette personne pas d\'emplacement défini.</string>
+    <string name="update_person">Mettre à jour l\'entrée du répertoire</string>
+    <string name="this_person_does_not_have_a_location_set">Cette personne n\'a pas de coordonnées géographiques (latitude et longitude).</string>
 </resources>

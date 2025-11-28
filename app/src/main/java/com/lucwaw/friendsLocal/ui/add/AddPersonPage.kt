@@ -2,6 +2,7 @@ package com.lucwaw.friendsLocal.ui.add
 
 import android.util.Log
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,6 +52,8 @@ fun AddPersonPage(
 
     AddPersonContent(
         address = address,
+        latitude = position?.latitude,
+        longitude = position?.longitude,
         back = back,
         event = viewModel::onEvent
     )
@@ -60,11 +63,14 @@ fun AddPersonPage(
 fun AddPersonContent(
     modifier: Modifier = Modifier,
     address: String,
+    latitude: Double?,
+    longitude: Double?,
     back: () -> Unit,
     event: (AddEvent) -> Unit,
 ) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
+    var showWidget by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -94,9 +100,14 @@ fun AddPersonContent(
             )
         }
         TextField(
-            modifier = Modifier.fillMaxWidth(),
             value = address,
-            onValueChange = { event(AddEvent.OnUpdateAddress(it)) },
+            onValueChange = {},
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable {
+                    showWidget = true
+                },
+            enabled = false,
             label = { Text(stringResource(R.string.address)) }
         )
         Button(
@@ -107,6 +118,8 @@ fun AddPersonContent(
                             firstName = firstName,
                             lastName = lastName,
                             address = address,
+                            lat = latitude,
+                            lng = longitude
                         )
                     )
                 ); back()
@@ -114,6 +127,10 @@ fun AddPersonContent(
         ) {
             Text(stringResource(R.string.save))
         }
+    }
+
+    if (showWidget) {
+        showWidget = false
     }
 }
 

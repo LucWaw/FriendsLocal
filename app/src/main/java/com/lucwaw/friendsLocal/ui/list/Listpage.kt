@@ -1,6 +1,7 @@
 package com.lucwaw.friendsLocal.ui.list
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -57,9 +58,13 @@ fun ListPage(
                     )
                 }
             }
-    ) { paddingValues ->
+    ) { innerPadding ->
 
-        LazyColumn(Modifier.padding(paddingValues)) {
+        LazyColumn(
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding(),
+            bottom = innerPadding.calculateBottomPadding() + 80.dp // <-- important
+        )) {
             items(
                 items = persons,
                 key = { person ->

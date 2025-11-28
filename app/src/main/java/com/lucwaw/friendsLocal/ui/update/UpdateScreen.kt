@@ -1,6 +1,7 @@
 package com.lucwaw.friendsLocal.ui.update
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +44,7 @@ fun UpdateScreen(
     Scaffold(
         topBar =
             {
-                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = stringResource(R.string.update_person),
                         style = MaterialTheme.typography.headlineSmall
@@ -99,9 +100,12 @@ fun UpdateContent(
             )
         }
         TextField(
-            modifier = Modifier.fillMaxWidth(),
             value = person.address ?: "",
-            onValueChange = { event(UpdateEvent.OnAddressChange(it)) },
+            onValueChange = {},
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable {  },
+            enabled = false,
             label = { Text(stringResource(R.string.address)) }
         )
         Button(
