@@ -1,8 +1,6 @@
 package com.lucwaw.friendsLocal.domain.model
 
-import android.location.Address
-
-data class Person (
+data class Person(
     val lat: Double? = null,
     val lng: Double? = null,
     val id: Long = 0,

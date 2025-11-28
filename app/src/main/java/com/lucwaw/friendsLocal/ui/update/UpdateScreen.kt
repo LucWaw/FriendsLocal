@@ -6,6 +6,7 @@ import android.text.style.StyleSpan
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,7 +39,7 @@ import com.google.android.libraries.places.widget.PlaceAutocomplete
 import com.google.android.libraries.places.widget.PlaceAutocompleteActivity
 import com.lucwaw.friendsLocal.R
 import com.lucwaw.friendsLocal.domain.model.Person
-import com.lucwaw.friendsLocal.ui.AutoComplete.getLatitudeAndLongitudeFromAddressName
+import com.lucwaw.friendsLocal.ui.autocomplete.getLatitudeAndLongitudeFromAddressName
 import com.lucwaw.friendsLocal.ui.add.LatLngEditor
 
 @Composable
@@ -48,6 +49,9 @@ fun UpdateScreen(
     back: () -> Unit
 ) {
     val person by viewModel.person.collectAsStateWithLifecycle()
+    val latitude = viewModel.latitude.value
+    val longitude = viewModel.longitude.value
+
     LaunchedEffect(Unit) {
         viewModel.loadPerson(idPerson)
     }
@@ -75,7 +79,7 @@ fun UpdateScreen(
                 }
             }
     ) { innerPadding ->
-        UpdateContent(Modifier.padding(innerPadding), person, viewModel::onEvent, back)
+        UpdateContent(Modifier.padding(innerPadding), person, latitude, longitude, viewModel::onEvent, back)
     }
 }
 
@@ -83,16 +87,19 @@ fun UpdateScreen(
 fun UpdateContent(
     modifier: Modifier = Modifier,
     person: Person,
+    latitude: String,
+    longitude: String,
     event: (UpdateEvent) -> Unit,
     back: () -> Unit
 ) {
-
-    val onLatLngChange = { newLat: Double?, newLng: Double? ->
+    val onLatChange = { newLat: String ->
         event(
-            UpdateEvent.OnLatChange(newLat.toString())
+            UpdateEvent.OnLatChange(newLat)
         )
+    }
+    val onLngChange = { newLng: String ->
         event(
-            UpdateEvent.OnLongChange(newLng.toString())
+            UpdateEvent.OnLongChange(newLng)
         )
     }
 
@@ -115,8 +122,8 @@ fun UpdateContent(
                             context,
                             place.getFullText(StyleSpan(Typeface.NORMAL)).toString()
                         )
-                        onLatLngChange(result?.first, result?.second)
-                    }
+                        onLatChange(result?.first.toString())
+                        onLngChange(result?.second.toString())                    }
                 }
             } else if (result.resultCode == PlaceAutocompleteActivity.RESULT_ERROR) {
                 val intent = result.data
@@ -142,6 +149,7 @@ fun UpdateContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(5.dp),
             modifier = Modifier
+                .border(2.dp, MaterialTheme.colorScheme.primary)
                 .padding(10.dp)
         ) {
             TextField(
@@ -165,7 +173,8 @@ fun UpdateContent(
             label = { Text(stringResource(R.string.address)) },
             trailingIcon = {
                 IconButton(onClick = {
-                    val intent = PlaceAutocomplete.createIntent(context)
+                    val intent = PlaceAutocomplete.IntentBuilder().setInitialQuery(person.address)
+                        .build(context)
                     startAutocomplete.launch(intent)
                 }) {
                     Icon(
@@ -177,9 +186,10 @@ fun UpdateContent(
         )
         LatLngEditor(
             address = person.address.toString(),
-            lat = person.lat.toString(),
-            lng = person.lng.toString(),
-            onLatLngChange = onLatLngChange
+            lat = latitude,
+            lng = longitude,
+            onLatChange = onLatChange,
+            onLngChange = onLngChange
         )
 
         Button(
@@ -202,6 +212,8 @@ fun UpdateContentPreview() {
             address = "123 Main St"
         ),
         event = {},
-        back = {}
+        back = {},
+        latitude ="truc",
+        longitude = "machin"
     )
 }

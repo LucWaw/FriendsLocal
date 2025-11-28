@@ -119,7 +119,9 @@ fun PersonItem(person: Person, onPersonLocation: () -> Unit, goToUpdatePerson: (
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = "${person.address}\n${person.lat}, ${person.lng}",
+                text = "${person.address}\n${person.lat?: stringResource(R.string.undefined_latitude)}, ${person.lng?: stringResource(
+                    R.string.undefined_longitude
+                )}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

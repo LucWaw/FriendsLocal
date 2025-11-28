@@ -8,11 +8,10 @@
     <string name="update_person">Mettre à jour l\'entrée du répertoire</string>
     <string name="this_person_does_not_have_a_location_set">Cette personne n\'a pas de coordonnées géographiques (latitude et longitude).</string>
     <string name="search_for_an_address">Rechercher une adresse</string>
-    <string name="refresh">Actualiser les coordonnées GPS</string>
-    <string name="empty">Vide</string>
     <string name="coordinates">Coordonnées</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="refresh_coordinates">Actualiser les coordonnées</string>
-
+    <string name="undefined_latitude">latitude indéfinie</string>
+    <string name="undefined_longitude">longitude indéfinie</string>
 </resources>

@@ -1,10 +1,12 @@
 package com.lucwaw.friendsLocal.ui.update
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucwaw.friendsLocal.domain.model.Person
 import com.lucwaw.friendsLocal.domain.repository.PersonRepository
-import com.lucwaw.friendsLocal.ui.AutoComplete.getLatitudeAndLongitudeFromAddressName
+import com.lucwaw.friendsLocal.ui.autocomplete.getLatitudeAndLongitudeFromAddressName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +18,11 @@ import javax.inject.Inject
 class UpdateViewModel @Inject constructor(
     private val repository: PersonRepository
 ) : ViewModel() {
-    private var originalAddress: String? = null
+    private val _latitude = mutableStateOf("")
+    val latitude: State<String> = _latitude
+
+    private val _longitude = mutableStateOf("")
+    val longitude: State<String> = _longitude
 
     private val _person = MutableStateFlow(
         Person(
@@ -31,7 +37,8 @@ class UpdateViewModel @Inject constructor(
         viewModelScope.launch {
             _person.update {
                 val person = repository.getPersonById(id)
-                originalAddress = person?.address
+                _latitude.value = person?.lat.toString()
+                _longitude.value = person?.lng.toString()
                 person ?: it
             }
         }
@@ -64,16 +71,15 @@ class UpdateViewModel @Inject constructor(
                     val current = person.value
                     val newAddress = current.address
 
-                    val hasAddressChanged = newAddress != originalAddress
 
                     val latLong =
-                        if (hasAddressChanged && !newAddress.isNullOrBlank()) {
+                        if (!newAddress.isNullOrBlank() && latitude.value.isEmpty() && longitude.value.isEmpty()) {
                             getLatitudeAndLongitudeFromAddressName(
                                 event.context,
                                 newAddress
                             )
                         } else {
-                            current.lat to current.lng
+                            latitude.value.toDoubleOrNull() to longitude.value.toDoubleOrNull()
                         }
 
                     repository.insertPerson(
@@ -86,10 +92,12 @@ class UpdateViewModel @Inject constructor(
             }
 
             is UpdateEvent.OnLatChange -> {
-                _person.update { it.copy(lat = event.latitude.toDoubleOrNull()) }
+                _latitude.value = event.latitude
             }
+
             is UpdateEvent.OnLongChange -> {
-                _person.update { it.copy(lat = event.longitude.toDoubleOrNull()) }
+                _longitude.value = event.longitude
+
             }
         }
     }

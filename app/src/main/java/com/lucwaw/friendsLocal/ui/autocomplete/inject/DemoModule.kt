@@ -1,4 +1,4 @@
-package com.lucwaw.friendsLocal.ui.AutoComplete.inject
+package com.lucwaw.friendsLocal.ui.autocomplete.inject
 
 import android.content.Context
 import com.google.android.libraries.places.api.Places

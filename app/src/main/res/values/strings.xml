@@ -8,10 +8,10 @@
     <string name="update_person">Update the directory entry</string>
     <string name="this_person_does_not_have_a_location_set">This person has no latitude and longitude location.</string>
     <string name="search_for_an_address">Search for an address</string>
-    <string name="refresh">Refresh GPS coordinates</string>
-    <string name="empty">empty</string>
     <string name="coordinates">Coordinates</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="refresh_coordinates">Refresh coordinates</string>
+    <string name="undefined_latitude">undefined latitude</string>
+    <string name="undefined_longitude">undefined longitude</string>
 </resources>

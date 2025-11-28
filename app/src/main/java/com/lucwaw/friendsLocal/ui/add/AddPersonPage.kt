@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -36,7 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,8 +43,7 @@ import com.google.android.libraries.places.widget.PlaceAutocomplete
 import com.google.android.libraries.places.widget.PlaceAutocompleteActivity
 import com.lucwaw.friendsLocal.R
 import com.lucwaw.friendsLocal.domain.model.Person
-import com.lucwaw.friendsLocal.ui.AutoComplete.getLatitudeAndLongitudeFromAddressName
-import com.lucwaw.friendsLocal.ui.update.UpdateContent
+import com.lucwaw.friendsLocal.ui.autocomplete.getLatitudeAndLongitudeFromAddressName
 
 
 @Composable
@@ -97,9 +94,11 @@ fun AddPersonContent(
     var lastName by remember { mutableStateOf("") }
     var latitude by remember { mutableStateOf(latitude.toString()) }
     var longitude by remember { mutableStateOf(longitude.toString()) }
-    val onLatLngChange = { newLat: Double?, newLng: Double? ->
-        latitude = newLat.toString()
-        longitude = newLng.toString()
+    val onLatChange = { newLat: String ->
+        latitude = newLat
+    }
+    val onLngChange = { newLng: String ->
+        longitude = newLng
     }
     val context = LocalContext.current
 
@@ -118,7 +117,8 @@ fun AddPersonContent(
                             context,
                             place.getFullText(StyleSpan(Typeface.NORMAL)).toString()
                         )
-                        onLatLngChange(result?.first, result?.second)
+                        onLatChange(result?.first.toString())
+                        onLngChange(result?.second.toString())
                     }
                 }
             } else if (result.resultCode == PlaceAutocompleteActivity.RESULT_ERROR) {
@@ -145,7 +145,7 @@ fun AddPersonContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier
-                .border(3.dp, MaterialTheme.colorScheme.primary)
+                .border(2.dp, MaterialTheme.colorScheme.primary)
                 .padding(10.dp)
         ) {
             TextField(
@@ -186,20 +186,25 @@ fun AddPersonContent(
             address = address,
             lat = latitude,
             lng = longitude,
-            onLatLngChange = onLatLngChange
+            onLatChange = onLatChange,
+            onLngChange = onLngChange
         )
 
         Button(
             onClick = {
-                val latLong = getLatitudeAndLongitudeFromAddressName(context, address)
+                val latLong = if (latitude.isEmpty() || longitude.isEmpty()) {
+                    getLatitudeAndLongitudeFromAddressName(context, address)
+                } else {
+                    null
+                }
                 event(
                     AddEvent.OnCreate(
                         Person(
                             firstName = firstName,
                             lastName = lastName,
                             address = address,
-                            lat = latLong?.first,
-                            lng = latLong?.second
+                            lat = latLong?.first ?: latitude.toDoubleOrNull(),
+                            lng = latLong?.second ?: longitude.toDoubleOrNull()
                         )
                     )
                 ); back()
@@ -215,7 +220,8 @@ fun LatLngEditor(
     address: String,
     lat: String,
     lng: String,
-    onLatLngChange: (Double?, Double?) -> Unit
+    onLatChange: (String) -> Unit,
+    onLngChange: (String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -235,7 +241,7 @@ fun LatLngEditor(
             OutlinedTextField(
                 value = if (lat == "null") "" else lat,
                 onValueChange = { text ->
-                    onLatLngChange(text.toDoubleOrNull(), lng.toDoubleOrNull())
+                    onLatChange(text)
                 },
                 modifier = Modifier.weight(1f),
                 label = { Text(stringResource(R.string.latitude)) },
@@ -249,7 +255,7 @@ fun LatLngEditor(
             OutlinedTextField(
                 value = if (lng == "null") "" else lng,
                 onValueChange = { text ->
-                    onLatLngChange(lat.toDoubleOrNull(), text.toDoubleOrNull())
+                    onLngChange(text)
                 },
                 modifier = Modifier.weight(1f),
                 label = { Text(stringResource(R.string.longitude)) },
@@ -263,7 +269,8 @@ fun LatLngEditor(
             IconButton(
                 onClick = {
                     val result = getLatitudeAndLongitudeFromAddressName(context, address)
-                    onLatLngChange(result?.first, result?.second)
+                    onLatChange(result?.first.toString())
+                    onLngChange(result?.second.toString())
                 }
             ) {
                 Icon(
@@ -273,21 +280,4 @@ fun LatLngEditor(
             }
         }
     }
-}
-
-
-@Preview(locale = "fr")
-@Composable
-fun UpdateContentPreview() {
-    UpdateContent(
-        modifier = Modifier.height(700.dp),
-        person = Person(
-            id = 1,
-            firstName = "John",
-            lastName = "Doe",
-            address = "123 Main St"
-        ),
-        event = {},
-        back = {}
-    )
 }

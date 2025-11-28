@@ -1,4 +1,4 @@
-package com.lucwaw.friendsLocal.ui.AutoComplete
+package com.lucwaw.friendsLocal.ui.autocomplete
 
 import android.content.Context
 import android.location.Address
