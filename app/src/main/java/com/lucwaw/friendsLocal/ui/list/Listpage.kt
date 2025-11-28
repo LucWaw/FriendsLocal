@@ -87,7 +87,7 @@ fun ListPage(
             Dialog(
                 onDismissRequest = { showAlertNoLocationDialog = false }
             ) {
-                Card {// TODO voir SI necessaire
+                Card {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = stringResource(R.string.this_person_does_not_have_a_location_set))
                         TextButton(
