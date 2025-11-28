@@ -48,6 +48,7 @@ import com.lucwaw.friendsLocal.domain.model.Person
 import com.lucwaw.friendsLocal.ui.AutoComplete.getLatitudeAndLongitudeFromAddressName
 import com.lucwaw.friendsLocal.ui.update.UpdateContent
 
+
 @Composable
 fun AddPersonPage(
     position: LatLng?,
@@ -72,6 +73,8 @@ fun AddPersonPage(
 
     AddPersonContent(
         address = currentAddress,
+        latitude = position?.latitude,
+        longitude = position?.longitude,
         back = back,
         onAddressChange = { newAddress ->
             currentAddress = newAddress // On met à jour l'état local quand l'utilisateur tape
@@ -84,28 +87,31 @@ fun AddPersonPage(
 fun AddPersonContent(
     modifier: Modifier = Modifier,
     address: String,
+    latitude: Double?,
+    longitude: Double?,
     back: () -> Unit,
     event: (AddEvent) -> Unit,
     onAddressChange: (String) -> Unit
 ) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var latitude by remember { mutableStateOf("") }
-    var longitude by remember { mutableStateOf("") }
+    var latitude by remember { mutableStateOf(latitude.toString()) }
+    var longitude by remember { mutableStateOf(longitude.toString()) }
     val onLatLngChange = { newLat: Double?, newLng: Double? ->
         latitude = newLat.toString()
         longitude = newLng.toString()
     }
     val context = LocalContext.current
 
+
     val startAutocomplete =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK) {
-                val intent = result.data
-                if (intent != null) {
-                    val place = PlaceAutocomplete.getPredictionFromIntent(intent)
+                val result = result.data
+                if (result != null) {
+                    val place = PlaceAutocomplete.getPredictionFromIntent(result)
                     if (place != null) {
                         onAddressChange(place.getFullText(StyleSpan(Typeface.NORMAL)).toString())
                         val result = getLatitudeAndLongitudeFromAddressName(
@@ -164,7 +170,8 @@ fun AddPersonContent(
             label = { Text(stringResource(R.string.address)) },
             trailingIcon = {
                 IconButton(onClick = {
-                    val intent = PlaceAutocomplete.createIntent(context)
+                    val intent =
+                        PlaceAutocomplete.IntentBuilder().setInitialQuery(address).build(context)
                     startAutocomplete.launch(intent)
                 }) {
                     Icon(
