@@ -6,7 +6,6 @@ import android.text.style.StyleSpan
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +38,8 @@ import com.google.android.libraries.places.widget.PlaceAutocomplete
 import com.google.android.libraries.places.widget.PlaceAutocompleteActivity
 import com.lucwaw.friendsLocal.R
 import com.lucwaw.friendsLocal.domain.model.Person
+import com.lucwaw.friendsLocal.ui.AutoComplete.getLatitudeAndLongitudeFromAddressName
+import com.lucwaw.friendsLocal.ui.add.LatLngEditor
 
 @Composable
 fun UpdateScreen(
@@ -85,6 +86,16 @@ fun UpdateContent(
     event: (UpdateEvent) -> Unit,
     back: () -> Unit
 ) {
+
+    val onLatLngChange = { newLat: Double?, newLng: Double? ->
+        event(
+            UpdateEvent.OnLatChange(newLat.toString())
+        )
+        event(
+            UpdateEvent.OnLongChange(newLng.toString())
+        )
+    }
+
     val context = LocalContext.current
     val startAutocomplete =
         rememberLauncherForActivityResult(
@@ -100,6 +111,11 @@ fun UpdateContent(
                                 place.getFullText(StyleSpan(Typeface.NORMAL)).toString()
                             )
                         )
+                        val result = getLatitudeAndLongitudeFromAddressName(
+                            context,
+                            place.getFullText(StyleSpan(Typeface.NORMAL)).toString()
+                        )
+                        onLatLngChange(result?.first, result?.second)
                     }
                 }
             } else if (result.resultCode == PlaceAutocompleteActivity.RESULT_ERROR) {
@@ -126,7 +142,6 @@ fun UpdateContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(5.dp),
             modifier = Modifier
-                .border(3.dp, MaterialTheme.colorScheme.primary)
                 .padding(10.dp)
         ) {
             TextField(
@@ -160,7 +175,12 @@ fun UpdateContent(
                 }
             }
         )
-
+        LatLngEditor(
+            address = person.address.toString(),
+            lat = person.lat.toString(),
+            lng = person.lng.toString(),
+            onLatLngChange = onLatLngChange
+        )
 
         Button(
             onClick = { event(UpdateEvent.OnSaveClick(context)); back() }

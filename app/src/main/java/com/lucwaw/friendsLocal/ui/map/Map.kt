@@ -5,7 +5,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -42,14 +41,13 @@ fun MapScreen(
     )
 
     Scaffold { paddingValues ->
-        val context = LocalContext.current
 
         GoogleMap(
             cameraPositionState = cameraPositionState,
             modifier = Modifier.padding(paddingValues),
             properties = state.properties,
             uiSettings = uiSettings,
-            onMapLongClick = { latLng ->
+            onMapClick = { latLng ->
                 onAdd(latLng)
             },
         ) {

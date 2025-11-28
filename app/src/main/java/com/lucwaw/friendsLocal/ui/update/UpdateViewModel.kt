@@ -85,6 +85,12 @@ class UpdateViewModel @Inject constructor(
                 }
             }
 
+            is UpdateEvent.OnLatChange -> {
+                _person.update { it.copy(lat = event.latitude.toDoubleOrNull()) }
+            }
+            is UpdateEvent.OnLongChange -> {
+                _person.update { it.copy(lat = event.longitude.toDoubleOrNull()) }
+            }
         }
     }
 }

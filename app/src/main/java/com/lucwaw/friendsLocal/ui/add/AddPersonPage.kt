@@ -3,17 +3,19 @@ package com.lucwaw.friendsLocal.ui.add
 import android.app.Activity.RESULT_OK
 import android.graphics.Typeface
 import android.text.style.StyleSpan
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -32,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -86,6 +90,12 @@ fun AddPersonContent(
 ) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
+    var latitude by remember { mutableStateOf("") }
+    var longitude by remember { mutableStateOf("") }
+    val onLatLngChange = { newLat: Double?, newLng: Double? ->
+        latitude = newLat.toString()
+        longitude = newLng.toString()
+    }
     val context = LocalContext.current
 
     val startAutocomplete =
@@ -98,6 +108,11 @@ fun AddPersonContent(
                     val place = PlaceAutocomplete.getPredictionFromIntent(intent)
                     if (place != null) {
                         onAddressChange(place.getFullText(StyleSpan(Typeface.NORMAL)).toString())
+                        val result = getLatitudeAndLongitudeFromAddressName(
+                            context,
+                            place.getFullText(StyleSpan(Typeface.NORMAL)).toString()
+                        )
+                        onLatLngChange(result?.first, result?.second)
                     }
                 }
             } else if (result.resultCode == PlaceAutocompleteActivity.RESULT_ERROR) {
@@ -141,7 +156,7 @@ fun AddPersonContent(
                 label = { Text(stringResource(R.string.last_name)) }
             )
         }
-        Log.d("ADDRESS", address)
+
         OutlinedTextField(
             value = address,
             onValueChange = { onAddressChange(it) },
@@ -159,6 +174,14 @@ fun AddPersonContent(
                 }
             }
         )
+
+        LatLngEditor(
+            address = address,
+            lat = latitude,
+            lng = longitude,
+            onLatLngChange = onLatLngChange
+        )
+
         Button(
             onClick = {
                 val latLong = getLatitudeAndLongitudeFromAddressName(context, address)
@@ -179,6 +202,72 @@ fun AddPersonContent(
         }
     }
 }
+
+@Composable
+fun LatLngEditor(
+    address: String,
+    lat: String,
+    lng: String,
+    onLatLngChange: (Double?, Double?) -> Unit
+) {
+    val context = LocalContext.current
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.coordinates),
+            style = MaterialTheme.typography.titleSmall
+        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = if (lat == "null") "" else lat,
+                onValueChange = { text ->
+                    onLatLngChange(text.toDoubleOrNull(), lng.toDoubleOrNull())
+                },
+                modifier = Modifier.weight(1f),
+                label = { Text(stringResource(R.string.latitude)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                )
+            )
+
+            OutlinedTextField(
+                value = if (lng == "null") "" else lng,
+                onValueChange = { text ->
+                    onLatLngChange(lat.toDoubleOrNull(), text.toDoubleOrNull())
+                },
+                modifier = Modifier.weight(1f),
+                label = { Text(stringResource(R.string.longitude)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                )
+            )
+
+            IconButton(
+                onClick = {
+                    val result = getLatitudeAndLongitudeFromAddressName(context, address)
+                    onLatLngChange(result?.first, result?.second)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.refresh_coordinates)
+                )
+            }
+        }
+    }
+}
+
 
 @Preview(locale = "fr")
 @Composable
