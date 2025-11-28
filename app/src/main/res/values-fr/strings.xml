@@ -7,4 +7,5 @@
     <string name="delete">Supprimer</string>
     <string name="update_person">Mettre à jour l\'entrée du répertoire</string>
     <string name="this_person_does_not_have_a_location_set">Cette personne n\'a pas de coordonnées géographiques (latitude et longitude).</string>
+    <string name="search_for_an_address">Rechercher une adresse</string>
 </resources>

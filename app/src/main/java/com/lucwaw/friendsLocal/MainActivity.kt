@@ -78,6 +78,8 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("Update/$id")
                                 },
                                 onAdd = { latlng ->
+                                    Log.d("ADDRESSMAINS", latlng.longitude.toString())
+
                                     navController.navigate("Add/?lat=${latlng.latitude}&lng=${latlng.longitude}")
                                 })
                         }
@@ -99,6 +101,7 @@ class MainActivity : ComponentActivity() {
                             if (lat != null && lng != null && lat != -100.0f && lng != -100.0f) {
                                 position = LatLng(lat.toDouble(), lng.toDouble())
                             }
+                            Log.d("ADDRESSMAINS", position?.longitude.toString())
 
                             AddPersonPage(position = position) {
                                 navController.popBackStack()

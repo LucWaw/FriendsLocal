@@ -1,12 +1,11 @@
 package com.lucwaw.friendsLocal.ui.update
 
-import com.google.android.gms.maps.model.LatLng
+import android.content.Context
 
 sealed class UpdateEvent {
     data class OnFirstNameChange(val firstName: String) : UpdateEvent()
     data class OnLastNameChange(val lastName: String) : UpdateEvent()
     data class OnAddressChange(val address: String) : UpdateEvent()
-    data object OnSaveClick : UpdateEvent()
-    data class OnPlaceSelected(val latLng: LatLng, val address: String) : UpdateEvent()
+    data class OnSaveClick(val context: Context) : UpdateEvent()
     data object OnDeleteClick : UpdateEvent()
 }

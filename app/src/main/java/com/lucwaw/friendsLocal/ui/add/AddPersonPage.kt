@@ -1,15 +1,25 @@
 package com.lucwaw.friendsLocal.ui.add
 
+import android.app.Activity.RESULT_OK
+import android.graphics.Typeface
+import android.text.style.StyleSpan
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -27,8 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.widget.PlaceAutocomplete
+import com.google.android.libraries.places.widget.PlaceAutocompleteActivity
 import com.lucwaw.friendsLocal.R
 import com.lucwaw.friendsLocal.domain.model.Person
+import com.lucwaw.friendsLocal.ui.AutoComplete.getLatitudeAndLongitudeFromAddressName
 import com.lucwaw.friendsLocal.ui.update.UpdateContent
 
 @Composable
@@ -37,25 +50,29 @@ fun AddPersonPage(
     viewModel: AddPersonViewModel = hiltViewModel(),
     back: () -> Unit,
 ) {
+
     val context = LocalContext.current
-    val address by viewModel.address.collectAsStateWithLifecycle()
+    val addressFromViewModel by viewModel.address.collectAsStateWithLifecycle()
+
+    var currentAddress by remember { mutableStateOf(addressFromViewModel) }
+
+    LaunchedEffect(addressFromViewModel) {
+        currentAddress = addressFromViewModel
+    }
 
     LaunchedEffect(position) {
-        Log.d(
-            "LATTTT LONNG",
-            "${position?.latitude ?: "aa"} ${position?.longitude ?: "bb"} "
-        )
         if (position != null) {
             viewModel.loadAddress(context, position.latitude, position.longitude)
         }
     }
 
     AddPersonContent(
-        address = address,
-        latitude = position?.latitude,
-        longitude = position?.longitude,
+        address = currentAddress,
         back = back,
-        event = viewModel::onEvent
+        onAddressChange = { newAddress ->
+            currentAddress = newAddress // On met à jour l'état local quand l'utilisateur tape
+        },
+        event = viewModel::onEvent,
     )
 }
 
@@ -63,14 +80,39 @@ fun AddPersonPage(
 fun AddPersonContent(
     modifier: Modifier = Modifier,
     address: String,
-    latitude: Double?,
-    longitude: Double?,
     back: () -> Unit,
     event: (AddEvent) -> Unit,
+    onAddressChange: (String) -> Unit
 ) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var showWidget by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    val startAutocomplete =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val intent = result.data
+                if (intent != null) {
+                    val place = PlaceAutocomplete.getPredictionFromIntent(intent)
+                    if (place != null) {
+                        onAddressChange(place.getFullText(StyleSpan(Typeface.NORMAL)).toString())
+                    }
+                }
+            } else if (result.resultCode == PlaceAutocompleteActivity.RESULT_ERROR) {
+                val intent = result.data
+                if (intent != null) {
+                    val status = PlaceAutocomplete.getResultStatusFromIntent(intent)
+                    Toast.makeText(
+                        context,
+                        "Failed to get place '${status?.statusMessage}'",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
 
     Column(
         modifier = modifier
@@ -99,27 +141,35 @@ fun AddPersonContent(
                 label = { Text(stringResource(R.string.last_name)) }
             )
         }
-        TextField(
+        Log.d("ADDRESS", address)
+        OutlinedTextField(
             value = address,
-            onValueChange = {},
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable {
-                    showWidget = true
-                },
-            enabled = false,
-            label = { Text(stringResource(R.string.address)) }
+            onValueChange = { onAddressChange(it) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.address)) },
+            trailingIcon = {
+                IconButton(onClick = {
+                    val intent = PlaceAutocomplete.createIntent(context)
+                    startAutocomplete.launch(intent)
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(R.string.search_for_an_address)
+                    )
+                }
+            }
         )
         Button(
             onClick = {
+                val latLong = getLatitudeAndLongitudeFromAddressName(context, address)
                 event(
                     AddEvent.OnCreate(
                         Person(
                             firstName = firstName,
                             lastName = lastName,
                             address = address,
-                            lat = latitude,
-                            lng = longitude
+                            lat = latLong?.first,
+                            lng = latLong?.second
                         )
                     )
                 ); back()
@@ -127,10 +177,6 @@ fun AddPersonContent(
         ) {
             Text(stringResource(R.string.save))
         }
-    }
-
-    if (showWidget) {
-        showWidget = false
     }
 }
 

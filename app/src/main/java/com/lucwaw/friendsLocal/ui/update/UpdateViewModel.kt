@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucwaw.friendsLocal.domain.model.Person
 import com.lucwaw.friendsLocal.domain.repository.PersonRepository
+import com.lucwaw.friendsLocal.ui.AutoComplete.getLatitudeAndLongitudeFromAddressName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,13 +55,19 @@ class UpdateViewModel @Inject constructor(
                 _person.update { it.copy(lastName = event.lastName) }
             }
 
-            is UpdateEvent.OnPlaceSelected -> {
-                //TODO GEOCODE and update lat lng in person
-            }
-
-            UpdateEvent.OnSaveClick -> {
+            is UpdateEvent.OnSaveClick -> {
                 viewModelScope.launch {
-                    repository.insertPerson(person.value)
+                    val latLong = getLatitudeAndLongitudeFromAddressName(
+                        event.context,
+                        person.value.address ?: ""
+                    )
+
+                    repository.insertPerson(
+                        person.value.copy(
+                            lat = latLong?.first,
+                            lng = latLong?.second
+                        )
+                    )
                 }
             }
         }

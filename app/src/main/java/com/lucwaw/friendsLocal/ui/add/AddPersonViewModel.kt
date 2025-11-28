@@ -33,19 +33,18 @@ class AddPersonViewModel @Inject constructor(
                     repository.insertPerson(event.person)
                 }
             }
-
-            is AddEvent.OnUpdateAddress -> {
-
-            }
         }
     }
 
     fun loadAddress(context: Context, lat: Double, lng: Double) {
         viewModelScope.launch {
+            Log.d("GIVEN", lat.toString())
+            Log.d("GIVEN", lng.toString())
+
             val result = reverseGeocode(context, lat, lng)
                 ?.toShortAddress()
                 ?: ""
-
+            Log.d("RESULT", result)
             _address.value = result
         }
     }
