@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -43,6 +44,11 @@ android {
             manifestPlaceholders["MAPS_API_KEY"] = mapsKey
 
             isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
+            ndk {
+                ndk.debugSymbolLevel = "FULL"
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -61,9 +67,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
+
 
     room {
         schemaDirectory("$projectDir/schemas")

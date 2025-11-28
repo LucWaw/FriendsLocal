@@ -118,12 +118,13 @@ fun PersonItem(person: Person, onPersonLocation: () -> Unit, goToUpdatePerson: (
                 text = "${person.firstName} ${person.lastName}",
                 style = MaterialTheme.typography.bodyLarge
             )
-            Text(
-                text = "${person.address}\n${person.lat?: stringResource(R.string.undefined_latitude)}, ${person.lng?: stringResource(
+            if (!person.address.isNullOrEmpty()) {
+                Text(text = person.address, style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Text(text = "${person.lat ?: stringResource(R.string.undefined_latitude)}, ${person.lng ?: stringResource(
                     R.string.undefined_longitude
-                )}",
-                style = MaterialTheme.typography.bodyMedium
-            )
+                )}", style = MaterialTheme.typography.bodyMedium)
+            }
         }
         Row {
             IconButton(
