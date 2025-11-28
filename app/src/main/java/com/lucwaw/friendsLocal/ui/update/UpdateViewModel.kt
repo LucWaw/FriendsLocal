@@ -16,6 +16,7 @@ import javax.inject.Inject
 class UpdateViewModel @Inject constructor(
     private val repository: PersonRepository
 ) : ViewModel() {
+    private var originalAddress: String? = null
 
     private val _person = MutableStateFlow(
         Person(
@@ -29,7 +30,9 @@ class UpdateViewModel @Inject constructor(
     fun loadPerson(id: Long) {
         viewModelScope.launch {
             _person.update {
-                repository.getPersonById(id) ?: it
+                val person = repository.getPersonById(id)
+                originalAddress = person?.address
+                person ?: it
             }
         }
     }
@@ -57,19 +60,31 @@ class UpdateViewModel @Inject constructor(
 
             is UpdateEvent.OnSaveClick -> {
                 viewModelScope.launch {
-                    val latLong = getLatitudeAndLongitudeFromAddressName(
-                        event.context,
-                        person.value.address ?: ""
-                    )
+
+                    val current = person.value
+                    val newAddress = current.address
+
+                    val hasAddressChanged = newAddress != originalAddress
+
+                    val latLong =
+                        if (hasAddressChanged && !newAddress.isNullOrBlank()) {
+                            getLatitudeAndLongitudeFromAddressName(
+                                event.context,
+                                newAddress
+                            )
+                        } else {
+                            current.lat to current.lng
+                        }
 
                     repository.insertPerson(
-                        person.value.copy(
+                        current.copy(
                             lat = latLong?.first,
                             lng = latLong?.second
                         )
                     )
                 }
             }
+
         }
     }
 }

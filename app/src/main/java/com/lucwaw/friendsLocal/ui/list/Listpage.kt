@@ -119,7 +119,7 @@ fun PersonItem(person: Person, onPersonLocation: () -> Unit, goToUpdatePerson: (
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = "${person.address} ${person.lat}, ${person.lng}",
+                text = "${person.address}\n${person.lat}, ${person.lng}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

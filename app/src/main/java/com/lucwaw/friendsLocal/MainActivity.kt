@@ -101,10 +101,9 @@ class MainActivity : ComponentActivity() {
                             if (lat != null && lng != null && lat != -100.0f && lng != -100.0f) {
                                 position = LatLng(lat.toDouble(), lng.toDouble())
                             }
-                            Log.d("ADDRESSMAINS", position?.longitude.toString())
 
                             AddPersonPage(position = position) {
-                                navController.popBackStack()
+                                navController.navigate("ListPage")
                             }
                         }
 
@@ -117,10 +116,9 @@ class MainActivity : ComponentActivity() {
 
                             val personId = backStackEntry.arguments?.getLong("personId")
 
-                            Log.d("AAAA", personId.toString())
                             if (personId != null) {
                                 UpdateScreen(personId, back = {
-                                    navController.popBackStack()
+                                    navController.navigate("ListPage")
                                 })
                             } else {
                                 Log.e("MainActivity", "personId is null in UpdateScreen navigation")
