@@ -45,7 +45,6 @@ class MainActivity : ComponentActivity() {
 
                         composable("ListPage") {
                             ListPage(onUpdatePerson = { id ->
-                                Log.d("DDDD", id.toString())
                                 navController.navigate("Update/$id")
                             }, onAdd = {
                                 navController.navigate("Add/")
@@ -78,7 +77,6 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("Update/$id")
                                 },
                                 onAdd = { latlng ->
-                                    Log.d("ADDRESSMAINS", latlng.longitude.toString())
 
                                     navController.navigate("Add/?lat=${latlng.latitude}&lng=${latlng.longitude}")
                                 })
